@@ -1,6 +1,6 @@
 /**
  * @file Configuration file for Babel.
- * @author DUMONT Benoit <benoit.dumont@contakt.eco>
+ * @author DUMONT Benoit <benoit.dum74@gmail.com>
  */
 
 module.exports = {
