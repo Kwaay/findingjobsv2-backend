@@ -1,6 +1,6 @@
 /**
  * @file Configuration file for ESLint.
- * @author DUMONT Benoit <benoit.dumont@contakt.eco>
+ * @author DUMONT Benoit <benoit.dum74@gmail.com>
  */
 const path = require('path');
 
@@ -43,6 +43,7 @@ module.exports = {
     ],
     'jsdoc/check-property-names': 2,
     'jsdoc/check-syntax': 2,
+    'jsdoc/check-tag-names': [2, { definedTags: ['category', 'subcategory'] }],
     'jsdoc/check-types': 2,
     'jsdoc/check-values': 2,
     'jsdoc/empty-tags': 2,
@@ -59,7 +60,7 @@ module.exports = {
         minimumLengthForMultiline: 80,
       },
     ],
-    'jsdoc/newline-after-description': 'off',
+    'jsdoc/newline-after-description': 2,
     'jsdoc/no-bad-blocks': 2,
     'jsdoc/no-defaults': 2,
     'jsdoc/no-missing-syntax': 'off',
@@ -118,6 +119,25 @@ module.exports = {
     'jsdoc/require-yields': 2,
     'jsdoc/require-yields-check': 2,
     'jsdoc/sort-tags': 'off',
+    'jsdoc/tag-lines': [
+      2,
+      'always',
+      {
+        count: 1,
+        dropEndLines: true,
+        noEndLines: true,
+        tags: {
+          param: { lines: 'any' },
+          property: { lines: 'any' },
+          function: { lines: 'any' },
+          class: { lines: 'never' },
+          constructs: { lines: 'never' },
+          returns: { lines: 'any' },
+          file: { lines: 'any' },
+          fires: { lines: 'any' },
+        },
+      },
+    ],
     'jsdoc/valid-types': 1,
   },
   ignorePatterns: ['node_modules'],
