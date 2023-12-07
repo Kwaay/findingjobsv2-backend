@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 /**
  * @file Configuration file for the Models.
- * @author DUMONT Benoit <benoit.dumont@contakt.eco>
+ * @author DUMONT Benoit <benoit.dum74@gmail.com>
  *
  * @module Models
  */
@@ -41,20 +41,27 @@ console.log('✅ Connexion à MySQL valide');
 
 await Promise.all(modelImportPromises);
 
-// const forceFkTrue = {
-//   foreignKey: {
-//     allowNull: true,
-//     onDelete: 'CASCADE',
-//     onUpdate: 'CASCADE',
-//   },
-// };
-// const forceFkFalse = {
-//   foreignKey: {
-//     allowNull: false,
-//     onDelete: 'CASCADE',
-//     onUpdate: 'CASCADE',
-//   },
-// };
+const forceFkTrue = {
+  foreignKey: {
+    allowNull: true,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  },
+};
+const forceFkFalse = {
+  foreignKey: {
+    allowNull: false,
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  },
+};
+
+db.Stack.belongsToMany(db.Job, {
+  through: 'JobHasStack',
+});
+db.Job.belongsToMany(db.Stack, {
+  through: 'JobHasStack',
+});
 
 await instance
   .sync()

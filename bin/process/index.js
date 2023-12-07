@@ -5,11 +5,11 @@
  * @module Process
  */
 import '../../config';
-import Logger from '../../lib/Logger';
 import enquirer from 'enquirer';
-import puppeteer from 'puppeteer';
-
-console;
+import Logger from '../../lib/Logger';
+import ProcessPE from '../../services/processPE';
+import ProcessWTTJ from '../../services/processWTTJ';
+import Browser from '../../class/Browser';
 
 /**
  * @class
@@ -58,12 +58,46 @@ class Process {
       },
     });
     const actions = await promptForJobTypes.run().catch(console.error);
-    if (actions === undefined) {
-      console.error(`❌ No actions were selected`);
+    if (Object.keys(actions).length < 1) {
+      Logger.error(`No actions were selected`);
       return;
     }
     const selectedActions = Object.values(actions);
-    const browser = await puppeteer.launch();
+    const actionsDone = [];
+    const instance = await Browser.launchBrowser();
+    if (selectedActions.includes('PE')) {
+      const spinner = Logger.loader({
+        message: `Waiting PE`,
+        timerName: 'crawlPE',
+      });
+      const jobsNumber = await ProcessPE.launchCrawl(instance);
+      setTimeout(async () => {
+        await ProcessPE.launchProcess(instance);
+        Logger.killLoader({
+          spinner,
+          killStatus: 'succeed',
+          killMessage: `Total PE jobs added: ${jobsNumber}`,
+          timerName: 'crawlPE',
+        });
+        actionsDone.push('PE');
+      }, 60000);
+    }
+    if (selectedActions.includes('WTTJ')) {
+      const spinner = Logger.loader({
+        message: `Waiting WTTJ`,
+        timerName: 'crawlWTTJ',
+      });
+      const jobsNumber = await ProcessWTTJ.launchCrawl(instance);
+      await ProcessWTTJ.launchProcess(instance);
+      Logger.killLoader({
+        spinner,
+        killStatus: 'succeed',
+        killMessage: `Total WTTJ jobs added: ${jobsNumber}`,
+        timerName: 'crawlWTTJ',
+      });
+    }
+    // if (actionsDone === selectedActions) {
+    // }
   }
 }
 
