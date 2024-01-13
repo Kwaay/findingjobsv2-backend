@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --experimental-loader=extensionless --experimental-specifier-resolution=node server.js",
-    "process": "node --experimental-loader=extensionless --experimental-specifier-resolution=node ./bin/process",
+    "dev": "nodemon  --experimental-specifier-resolution=node server.js",
+    "process": "node --experimental-specifier-resolution=node ./bin/process",
     "lint": "eslint -c ./.eslintrc.cjs . --ext .js --ext .cjs",
     "lint:watch": "npx nodemon --exec 'npm run lint' --watch . --ignore ./docs/",
     "docs": "jsdoc -c jsdoc.json",
@@ -27,7 +27,6 @@
     "eslint-plugin-jsdoc": "^46.8.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.0.1",
-    "extensionless": "^1.7.3",
     "prettier": "^3.0.3"
   },
   "dependencies": {
@@ -41,6 +40,7 @@
     "mysql2": "^3.6.3",
     "ora": "^7.0.1",
     "puppeteer": "^21.5.2",
-    "random-useragent": "^0.5.0"
+    "random-useragent": "^0.5.0",
+    "striptags": "^3.2.0"
   }
 }

@@ -5,11 +5,11 @@
  * @module Process
  */
 import '../../config';
-import Logger from '../../lib/Logger';
 import enquirer from 'enquirer';
-import puppeteer from 'puppeteer';
-
-console;
+import Logger from '../../lib/Logger';
+import ProcessPE from '../../services/processPE';
+import ProcessWTTJ from '../../services/processWTTJ';
+import Browser from '../../class/Browser';
 
 /**
  * @class
@@ -37,15 +37,6 @@ class Process {
       choices: [
         { name: 'Pole-Emploi', value: 'PE' },
         { name: 'WelcomeToTheJungle', value: 'WTTJ' },
-        { name: 'Monster', value: 'Monster' },
-        {
-          name: 'Hellowork',
-          value: 'Hellowork',
-        },
-        {
-          name: 'Indeed',
-          value: 'Indeed',
-        },
       ],
       /**
        * @description Helps getting the corresponding values of selected options.
@@ -58,12 +49,46 @@ class Process {
       },
     });
     const actions = await promptForJobTypes.run().catch(console.error);
-    if (actions === undefined) {
-      console.error(`❌ No actions were selected`);
+    if (Object.keys(actions).length < 1) {
+      Logger.error(`No actions were selected`);
       return;
     }
     const selectedActions = Object.values(actions);
-    const browser = await puppeteer.launch();
+    const instance = await Browser.launchBrowser();
+    if (selectedActions.includes('PE')) {
+      const spinner = Logger.loader({
+        message: `Waiting PE`,
+        timerName: 'crawlPE',
+      });
+      const jobsNumber = await ProcessPE.launchCrawl(instance);
+      const promise = new Promise((resolve) => {
+        setTimeout(async () => {
+          await ProcessPE.launchProcess(instance);
+          Logger.killLoader({
+            spinner,
+            killStatus: 'succeed',
+            killMessage: `Total PE jobs added: ${jobsNumber}`,
+            timerName: 'crawlPE',
+          });
+          resolve();
+        }, 60000);
+      });
+      await promise;
+    }
+    if (selectedActions.includes('WTTJ')) {
+      const spinner = Logger.loader({
+        message: `Waiting WTTJ`,
+        timerName: 'crawlWTTJ',
+      });
+      const jobsNumber = await ProcessWTTJ.launchCrawl(instance);
+      await ProcessWTTJ.launchProcess(instance);
+      Logger.killLoader({
+        spinner,
+        killStatus: 'succeed',
+        killMessage: `Total WTTJ jobs added: ${jobsNumber}`,
+        timerName: 'crawlWTTJ',
+      });
+    }
   }
 }
 
