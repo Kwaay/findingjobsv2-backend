@@ -25,7 +25,7 @@ const baseUrl =
 const temporaryWaitList = [];
 
 /**
- * @description WaitList, it extends from ProcessService who implements the default methods for the process.
+ * @description ProcessPE, it extends from ProcessService who implements the default methods for the process.
  * And add a validate method.
  *
  * @class
@@ -64,6 +64,20 @@ class ProcessPE extends ProcessService {
       await page.setUserAgent(userAgent);
       await page.goto(url, { waitUntil: 'networkidle2' });
       await page.setDefaultNavigationTimeout(0);
+      page.setRequestInterception(true);
+
+      page.on('request', async (request) => {
+        if (
+          request.resourceType() === 'fetch' ||
+          request.resourceType() === 'image' ||
+          request.resourceType() === 'media' ||
+          request.resourceType() === 'font'
+        ) {
+          request.abort();
+        } else {
+          request.continue();
+        }
+      });
       // const indisponible = await page.evaluate(async () => {
       //   const indispoElement = document.querySelector('.block-offre-indispo');
       //   let i = false;
@@ -162,6 +176,19 @@ class ProcessPE extends ProcessService {
     const userAgent = randomUseragent.getRandom();
     await page.setUserAgent(userAgent);
     await page.goto(baseUrl, { waitUntil: 'networkidle2' });
+    page.setRequestInterception(true);
+    page.on('request', async (request) => {
+      if (
+        request.resourceType() === 'fetch' ||
+        request.resourceType() === 'image' ||
+        request.resourceType() === 'media' ||
+        request.resourceType() === 'font'
+      ) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
     if (process.env.APP_DEBUG === 'true')
       Logger.wait('Waiting for Network idle');
     await new Promise((resolve2) => {

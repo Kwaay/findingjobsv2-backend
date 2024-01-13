@@ -37,15 +37,6 @@ class Process {
       choices: [
         { name: 'Pole-Emploi', value: 'PE' },
         { name: 'WelcomeToTheJungle', value: 'WTTJ' },
-        { name: 'Monster', value: 'Monster' },
-        {
-          name: 'Hellowork',
-          value: 'Hellowork',
-        },
-        {
-          name: 'Indeed',
-          value: 'Indeed',
-        },
       ],
       /**
        * @description Helps getting the corresponding values of selected options.
@@ -63,7 +54,6 @@ class Process {
       return;
     }
     const selectedActions = Object.values(actions);
-    const actionsDone = [];
     const instance = await Browser.launchBrowser();
     if (selectedActions.includes('PE')) {
       const spinner = Logger.loader({
@@ -71,16 +61,19 @@ class Process {
         timerName: 'crawlPE',
       });
       const jobsNumber = await ProcessPE.launchCrawl(instance);
-      setTimeout(async () => {
-        await ProcessPE.launchProcess(instance);
-        Logger.killLoader({
-          spinner,
-          killStatus: 'succeed',
-          killMessage: `Total PE jobs added: ${jobsNumber}`,
-          timerName: 'crawlPE',
-        });
-        actionsDone.push('PE');
-      }, 60000);
+      const promise = new Promise((resolve) => {
+        setTimeout(async () => {
+          await ProcessPE.launchProcess(instance);
+          Logger.killLoader({
+            spinner,
+            killStatus: 'succeed',
+            killMessage: `Total PE jobs added: ${jobsNumber}`,
+            timerName: 'crawlPE',
+          });
+          resolve();
+        }, 60000);
+      });
+      await promise;
     }
     if (selectedActions.includes('WTTJ')) {
       const spinner = Logger.loader({
@@ -96,8 +89,6 @@ class Process {
         timerName: 'crawlWTTJ',
       });
     }
-    // if (actionsDone === selectedActions) {
-    // }
   }
 }
 
