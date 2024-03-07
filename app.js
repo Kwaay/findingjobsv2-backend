@@ -4,8 +4,13 @@
  */
 
 import express from 'express';
-
 import HttpError from './class/HttpError';
+
+import jobRoutes from './routes/job';
+import stackRoutes from './routes/stack';
+
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
 
@@ -28,12 +33,17 @@ app.use((_req, res, next) => {
   next();
 });
 
+const __filename = fileURLToPath(import.meta.url);
+// eslint-disable-next-line no-underscore-dangle
+const __dirname = path.dirname(__filename);
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 // Base URL pour les routes
-// app.use('/api/acv', acvRoutes);
+app.use('/api/job', jobRoutes);
+app.use('/api/stack', stackRoutes);
 
 // Error handling
-// @ts-ignore
-app.use((error, req, res, next) => {
+app.use((error, _req, res, next) => {
   if (error instanceof HttpError) {
     return res.status(error.code).json({ error: error.message });
   }

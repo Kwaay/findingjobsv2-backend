@@ -67,24 +67,27 @@ class ProcessWTTJ extends ProcessService {
         );
         // @ts-ignore
         const linksElement = elements.map((element) => element.href);
+
         return linksElement;
       });
-      links.forEach(async (link) => {
+      for (const link of links) {
+        const linkSplit = link.split('?')[0];
         const checkifExistsInWaitList = await WaitListService.getOne({
-          url: link,
+          url: linkSplit,
           origin: 'WTTJ',
         });
         const checkIfExistsInJobs = await JobService.getOne({
-          link: link,
+          link: linkSplit,
           origin: 'WTTJ',
         });
-        if (checkifExistsInWaitList || checkIfExistsInJobs) return;
+        if (checkifExistsInWaitList || checkIfExistsInJobs) continue;
+
         await WaitListService.createOne({
-          url: link,
+          url: linkSplit,
           origin: 'WTTJ',
         });
-        temporaryWaitList.push(link);
-      });
+        temporaryWaitList.push(linkSplit);
+      }
 
       const hasNextPage = await page.evaluate(async () => {
         const activePage = document.querySelector(
@@ -166,6 +169,7 @@ class ProcessWTTJ extends ProcessService {
           request.continue();
         }
       });
+      await page.waitForSelector('div[id="the-position-section"]');
       // const indisponible = await page.evaluate(async () => {
       //   const indispoElement = document.querySelector(
       //     'div[data-testid="job-section-archived"]',
@@ -178,14 +182,16 @@ class ProcessWTTJ extends ProcessService {
       //   await page.close();
       // }
       const name = await page.evaluate(() => {
-        const nameElement = document.querySelector('h1');
+        const nameElement = document.querySelector('h2');
         // @ts-ignore
         return nameElement ? nameElement.innerText : 'Non-indiqué';
       });
       const location = await page.evaluate(() => {
-        const locationElement = document.querySelector(
-          "#pages_jobs_show > main > div > div > div > li > span[color='white']",
-        );
+        let locationElement = document.querySelector("i[name='location']");
+        if (locationElement !== null) {
+          locationElement = locationElement.parentElement;
+        }
+
         return locationElement
           ? // @ts-ignore
             locationElement.innerText.replace(/\s/g, ' ')
@@ -195,7 +201,7 @@ class ProcessWTTJ extends ProcessService {
         let contractElement = document.querySelector('i[name="contract"]');
 
         if (contractElement !== null) {
-          contractElement = contractElement.parentElement.querySelector('span');
+          contractElement = contractElement.parentElement;
         }
         return contractElement
           ? // @ts-ignore
@@ -205,35 +211,31 @@ class ProcessWTTJ extends ProcessService {
       const study = await page.evaluate(() => {
         let studyElement = document.querySelector('i[name="education_level"]');
         if (studyElement !== null) {
-          studyElement = studyElement.parentElement.querySelector(
-            'span:nth-of-type(2)',
-          );
+          studyElement = studyElement.parentElement;
         }
         return studyElement
           ? // @ts-ignore
-            studyElement.innerText.replace(/\s/g, ' ')
+            studyElement.innerText.replace(/\s/g, ' ').split('Éducation : ')[1]
           : 'Non-indiqué';
       });
       const exp = await page.evaluate(() => {
         let expElement = document.querySelector('i[name="suitcase"]');
         if (expElement !== null) {
-          expElement = expElement.parentElement.querySelector(
-            'span:nth-of-type(2)',
-          );
+          expElement = expElement.parentElement;
         }
         return expElement
           ? // @ts-ignore
-            expElement.innerText.replace(/\s/g, ' ')
+            expElement.innerText.replace(/\s/g, ' ').split('Expérience : ')[1]
           : 'Non-indiqué';
       });
       const salary = await page.evaluate(() => {
         let salaryElement = document.querySelector('i[name="salary"]');
         if (salaryElement !== null) {
-          salaryElement = salaryElement.parentElement.querySelector('span');
+          salaryElement = salaryElement.parentElement;
         }
         return salaryElement
           ? // @ts-ignore
-            salaryElement.innerText.replace(/\s/g, ' ')
+            salaryElement.innerText.replace(/\s/g, ' ').split('Salaire : ')[1]
           : 'Non-indiqué';
       });
       const remote = await page.evaluate(() => {
@@ -249,11 +251,11 @@ class ProcessWTTJ extends ProcessService {
       const start = await page.evaluate(() => {
         let startElement = document.querySelector('i[name="clock"]');
         if (startElement !== null) {
-          startElement = startElement.parentElement.querySelector('time span');
+          startElement = startElement.parentElement;
         }
         return startElement
           ? // @ts-ignore
-            startElement.innerText.replace(/\s/g, ' ')
+            startElement.innerText.replace(/\s/g, ' ').split('Début : ')[1]
           : 'Non-indiqué';
       });
       const content = await page.evaluate(() => {

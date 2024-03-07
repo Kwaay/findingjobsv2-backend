@@ -1,6 +1,6 @@
 /**
  * @file Stack Class based on Service.
- * @author DUMONT Benoit <benoit.dumont@contakt.eco>
+ * @author DUMONT Benoit <benoit.dum74@gmail.com>
  */
 
 import Service from './service';
